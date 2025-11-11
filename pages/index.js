@@ -1,4 +1,4 @@
-function Home () {
+function Home() {
   return <h1>Pena de urubu, asa de galinha 😍...</h1>
 }
 
