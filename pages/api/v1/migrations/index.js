@@ -7,7 +7,7 @@ export default async function migrations(request, response) {
 
   const defaultMigrationOptions = {
     dbClient,
-    dryRun: false,
+    dryRun: true,
     direction: "up",
     dir: join("infra", "migrations"),
     verbose: true,
