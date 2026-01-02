@@ -1,6 +1,10 @@
 import database from "infra/database";
+import orchestrator from "tests/orchestrator";
 
-beforeAll(cleanDatabase);
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await cleanDatabase();
+});
 
 async function cleanDatabase() {
   const { query } = database;

@@ -7,6 +7,7 @@ dotenv.config({
 
 const createJestConfig = nextJest({
   dir: ".",
+  testTimeout: 60000,
 });
 
 const jestConfig = createJestConfig({
