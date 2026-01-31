@@ -10,7 +10,7 @@ async function query(queryObject) {
   } catch (error) {
     console.error(error);
   } finally {
-    await client.end();
+    await client?.end();
   }
 }
 
