@@ -10,6 +10,7 @@ function onErrorHandler(error, request, response) {
     cause: error,
     statusCode: error.statusCode,
   });
+
   console.error(publicErrorObject);
   response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
