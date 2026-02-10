@@ -34,8 +34,8 @@ async function findOneByUsername(username) {
 }
 
 async function create(userInputValues) {
-  await validateUniqueEmail(userInputValues.email);
   await validateUniqueUsername(userInputValues.username);
+  await validateUniqueEmail(userInputValues.email);
   await hashPasswordInObject(userInputValues);
 
   const newUser = await runInsertQuery(userInputValues);
@@ -60,31 +60,58 @@ async function create(userInputValues) {
 
     return results.rows[0];
   }
+}
 
-  async function validateUniqueEmail(email) {
-    const results = await database.query({
-      text: `
-    SELECT 
-      email 
-    FROM
-      users
-    WHERE
-      LOWER(email) = LOWER($1)
-    ;`,
-      values: [email],
-    });
+async function update(username, userInputValues) {
+  const currentUser = await findOneByUsername(username);
 
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "O email informado já está sendo utilizado.",
-        action: "Utilize um email diferente para realizar o cadastro.",
-      });
-    }
+  if ("username" in userInputValues) {
+    await validateUniqueUsername(userInputValues.username);
   }
 
-  async function validateUniqueUsername(username) {
+  if ("email" in userInputValues) {
+    await validateUniqueEmail(userInputValues.email);
+  }
+
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues);
+  }
+
+  const userWithNewValues = { ...currentUser, ...userInputValues };
+
+  const updatedUser = await runUpdateQuery(userWithNewValues);
+  return updatedUser;
+
+  async function runUpdateQuery(userWithNewValues) {
     const results = await database.query({
       text: `
+      UPDATE 
+        users
+      SET 
+        username = $2,
+        email = $3,
+        password = $4,
+        updated_at = timezone('utc', now())
+      WHERE
+        id = $1
+      RETURNING
+        *
+      ;`,
+      values: [
+        userWithNewValues.id,
+        userWithNewValues.username,
+        userWithNewValues.email,
+        userWithNewValues.password,
+      ],
+    });
+
+    return results.rows[0];
+  }
+}
+
+async function validateUniqueUsername(username) {
+  const results = await database.query({
+    text: `
     SELECT 
       username 
     FROM
@@ -92,23 +119,43 @@ async function create(userInputValues) {
     WHERE
       LOWER(username) = LOWER($1)
     ;`,
-      values: [username],
+    values: [username],
+  });
+
+  if (results.rowCount > 0) {
+    throw new ValidationError({
+      message: "O username informado já está sendo utilizado.",
+      action: "Utilize um username diferente para esta operação.",
     });
-
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "O username informado já está sendo utilizado.",
-        action: "Utilize um username diferente para realizar o cadastro.",
-      });
-    }
-  }
-
-  async function hashPasswordInObject(userInputValues) {
-    const hashedPassword = await password.hash(userInputValues.password);
-    userInputValues.password = hashedPassword;
   }
 }
 
-const user = { create, findOneByUsername };
+async function validateUniqueEmail(email) {
+  const results = await database.query({
+    text: `
+    SELECT 
+      email 
+    FROM
+      users
+    WHERE
+      LOWER(email) = LOWER($1)
+    ;`,
+    values: [email],
+  });
+
+  if (results.rowCount > 0) {
+    throw new ValidationError({
+      message: "O email informado já está sendo utilizado.",
+      action: "Utilize um email diferente para realizar a operação.",
+    });
+  }
+}
+
+async function hashPasswordInObject(userInputValues) {
+  const hashedPassword = await password.hash(userInputValues.password);
+  userInputValues.password = hashedPassword;
+}
+
+const user = { create, findOneByUsername, update };
 
 export default user;
