@@ -9,7 +9,7 @@ beforeAll(async () => {
   await orchestrator.runPendingMigrations();
 });
 
-describe("GET /api/v1/users", () => {
+describe("GET /api/v1/user", () => {
   describe("Default user", () => {
     test("With a valid session", async () => {
       const createdUser = await orchestrator.createUser({
