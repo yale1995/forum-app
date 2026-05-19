@@ -40,11 +40,11 @@ Equipe do forum-app`,
   });
 }
 
-async function findOneByUserId(userId) {
-  const newToken = await runSelectQuery(userId);
+async function findOneValidById(tokenId) {
+  const newToken = await runSelectQuery(tokenId);
   return newToken;
 
-  async function runSelectQuery(userId) {
+  async function runSelectQuery(tokenId) {
     const result = await database.query({
       text: `
       SELECT 
@@ -52,11 +52,13 @@ async function findOneByUserId(userId) {
       FROM 
         user_activation_tokens
       WHERE 
-        user_id = $1
+        id = $1
+        AND expires_at > NOW()
+        AND user_at IS NULL
       ORDER BY 
         created_at DESC
       LIMIT 1`,
-      values: [userId],
+      values: [tokenId],
     });
 
     return result.rows[0];
@@ -66,7 +68,7 @@ async function findOneByUserId(userId) {
 const activation = {
   sendEmailToUser,
   create,
-  findOneByUserId,
+  findOneValidById,
 };
 
 export default activation;

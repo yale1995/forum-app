@@ -1,4 +1,4 @@
-import activation from "models/activation";
+import webserber from "infra/webserver";
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -44,15 +44,16 @@ describe("Use case: Registration flow (all successful)", () => {
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
 
-    const activationToken = await activation.findOneByUserId(
-      createUserResponseBody.id,
+    const activationToken = orchestrator.extractUUID(lastEmail.text);
+
+    expect(lastEmail.text).toContain(
+      `${webserber.origin}/cadastro/ativar/${activationToken}`,
     );
 
     expect(lastEmail.sender).toBe("<contato@forum-app.com>");
     expect(lastEmail.recipients[0]).toBe("<new-user@gmail.com>");
     expect(lastEmail.subject).toBe("Ative seu cadastro no forum-app");
     expect(lastEmail.text).toContain("new-user");
-    expect(lastEmail.text).toContain(activationToken.id);
   });
 
   test("Activate account", async () => {});
