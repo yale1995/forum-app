@@ -1,9 +1,9 @@
-import retry from "async-retry";
 import { faker } from "@faker-js/faker";
+import retry from "async-retry";
 import database from "infra/database";
 import migrator from "models/migrator";
-import user from "models/user";
 import session from "models/session";
+import user from "models/user";
 
 const EMAIL_HTTP_URL = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -74,6 +74,10 @@ async function getLastEmail() {
   const emailListResponse = await fetch(`${EMAIL_HTTP_URL}/messages`);
   const emailListBody = await emailListResponse.json();
   const lastEmail = emailListBody.pop();
+
+  if (!lastEmail) {
+    return null;
+  }
 
   const emailTextResponse = await fetch(
     `${EMAIL_HTTP_URL}/messages/${lastEmail.id}.plain`,
