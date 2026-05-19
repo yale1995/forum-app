@@ -65,10 +65,34 @@ async function findOneValidById(tokenId) {
   }
 }
 
+async function markTokenAsUsed(activationTokenId) {
+  const usedToken = await runUpdateQuery(activationTokenId);
+  return usedToken;
+
+  async function runUpdateQuery(activationTokenId) {
+    const result = await database.query({
+      text: `
+        UPDATE 
+          user_activation_tokens
+        SET 
+          used_at = timezone('UTC', NOW()),
+          updated_at = timezone('UTC', NOW())
+        WHERE 
+          id = $1
+        RETURNING 
+          *`,
+      values: [activationTokenId],
+    });
+
+    return result.rows[0];
+  }
+}
+
 const activation = {
   sendEmailToUser,
   create,
   findOneValidById,
+  markTokenAsUsed,
 };
 
 export default activation;

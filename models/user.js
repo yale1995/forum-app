@@ -220,11 +220,41 @@ async function validateUniqueEmail(email) {
   }
 }
 
+async function setFeatures(userId, features) {
+  const updatedUser = await runUpdateQuery(userId, features);
+  return updatedUser;
+
+  async function runUpdateQuery(userId, features) {
+    const result = await database.query({
+      text: `
+      UPDATE 
+        users
+      SET 
+        features = $2
+      WHERE 
+        id = $1
+      RETURNING 
+        *
+    `,
+      values: [userId, features],
+    });
+
+    return result.rows[0];
+  }
+}
+
 async function hashPasswordInObject(userInputValues) {
   const hashedPassword = await password.hash(userInputValues.password);
   userInputValues.password = hashedPassword;
 }
 
-const user = { create, findOneByUsername, update, findOneByEmail, findOneById };
+const user = {
+  create,
+  findOneByUsername,
+  update,
+  findOneByEmail,
+  findOneById,
+  setFeatures,
+};
 
 export default user;
