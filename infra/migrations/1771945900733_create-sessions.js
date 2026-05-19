@@ -15,7 +15,6 @@ exports.up = (pgm) => {
     user_id: {
       type: "uuid",
       notNull: true,
-      references: "users",
     },
     expires_at: {
       type: "timestamptz",
@@ -23,8 +22,8 @@ exports.up = (pgm) => {
     },
     created_at: {
       type: "timestamptz",
-      default: pgm.func("timezone('UTC', now())"),
       notNull: true,
+      default: pgm.func("timezone('UTC', now())"),
     },
     updated_at: {
       type: "timestamptz",
