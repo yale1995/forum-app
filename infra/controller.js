@@ -8,6 +8,7 @@ import {
 } from "./errors";
 
 import * as cookie from "cookie";
+import authorization from "models/authorization";
 import session from "models/session";
 import user from "models/user";
 
@@ -97,7 +98,7 @@ function canRequest(feature) {
   return async function canRequestMiddleware(request, response, next) {
     const userTryingToRequest = request.context.user;
 
-    if (userTryingToRequest.features.includes(feature)) {
+    if (authorization.can(userTryingToRequest, feature)) {
       return next();
     }
 
