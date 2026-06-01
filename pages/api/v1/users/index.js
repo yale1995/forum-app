@@ -4,8 +4,9 @@ import user from "models/user";
 import { createRouter } from "next-connect";
 
 const router = createRouter();
+router.use(controller.injectAnonymousOrUser);
 
-router.post(postHandler);
+router.post(controller.canRequest("create:user"), postHandler);
 export default router.handler(controller.errorHandlers);
 
 async function postHandler(request, response) {
