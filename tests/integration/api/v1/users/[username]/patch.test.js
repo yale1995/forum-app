@@ -84,7 +84,7 @@ describe("PATCH /api/v1/users/[username]", () => {
       );
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/username-1",
+        "http://localhost:3000/api/v1/users/username-2",
         {
           method: "PATCH",
           headers: {
@@ -92,7 +92,7 @@ describe("PATCH /api/v1/users/[username]", () => {
             Cookie: `session_id=${sessionObject2.token}`,
           },
           body: JSON.stringify({
-            username: "username-2",
+            username: "username-1",
           }),
         },
       );
@@ -105,6 +105,45 @@ describe("PATCH /api/v1/users/[username]", () => {
         message: "O username informado já está sendo utilizado.",
         action: "Utilize um username diferente para esta operação.",
         status_code: 400,
+      });
+    });
+
+    test("With `user2` targerting `user1`", async () => {
+      await orchestrator.createUser({
+        username: "user1-target",
+      });
+
+      const createdUser2 = await orchestrator.createUser({
+        username: "user2-attacker",
+      });
+
+      const activatedUser2 = await orchestrator.activateUser(createdUser2);
+      const sessionObject2 = await orchestrator.createSession(
+        activatedUser2.id,
+      );
+
+      const response = await fetch(
+        "http://localhost:3000/api/v1/users/user1-target",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_id=${sessionObject2.token}`,
+          },
+          body: JSON.stringify({
+            username: "user1-new",
+          }),
+        },
+      );
+
+      expect(response.status).toBe(403);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        name: "ForbiddenError",
+        message: "Você não tem permissão para executar esta ação.",
+        action: "Você só pode editar o seu próprio usuário.",
+        status_code: 403,
       });
     });
 
