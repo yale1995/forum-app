@@ -86,19 +86,13 @@ describe("DELETE /api/v1/sessions", () => {
         id: sessionObject.id,
         token: sessionObject.token,
         user_id: sessionObject.user_id,
-        expires_at: responseBody.expires_at,
         created_at: sessionObject.created_at.toISOString(),
         updated_at: responseBody.updated_at,
       });
 
       expect(uuidVersion(responseBody.id)).toBe(4);
-      expect(Date.parse(responseBody.expires_at)).not.toBeNaN();
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
-
-      expect(
-        responseBody.expires_at < sessionObject.expires_at.toISOString(),
-      ).toEqual(true);
 
       expect(
         responseBody.updated_at > sessionObject.updated_at.toISOString(),
