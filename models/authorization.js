@@ -1,4 +1,33 @@
+import { InternalServerError } from "infra/errors";
+
+const availableFeatures = [
+  // USER
+  "create:user",
+  "read:user",
+  "read:user:self",
+  "update:user",
+  "update:user:others",
+
+  // SESSION
+  "create:session",
+  "read:session",
+
+  // ACTIVATION TOKEN
+  "read:activation_token",
+
+  // MIGRATION
+  "read:migration",
+  "create:migration",
+
+  // STATUS
+  "read:status",
+  "read:status:all",
+];
+
 function can(user, feature, resource) {
+  validateUser(user);
+  validateFeature(feature);
+
   let authorized = false;
 
   if (user.features.includes(feature)) {
@@ -16,15 +45,44 @@ function can(user, feature, resource) {
   return authorized;
 }
 
+function validateUser(user) {
+  if (!user || !user.features) {
+    throw new InternalServerError({
+      cause: "É necessário fornecer `user` no model `authorization`.",
+    });
+  }
+}
+
+function validateFeature(feature) {
+  if (!feature || !availableFeatures.includes(feature)) {
+    throw new InternalServerError({
+      cause:
+        "É necessário fornecer uma `feature` conhecida no model `authorization`.",
+    });
+  }
+}
+
+function validateResource(resource) {
+  if (!resource) {
+    throw new InternalServerError({
+      cause:
+        "É necessário fornecer um `resource` em `authorization.filterOutput()`.",
+    });
+  }
+}
+
 function filterOutput(user, feature, resource) {
+  validateUser(user);
+  validateFeature(feature);
+  validateResource(resource);
+
   if (feature === "read:status") {
     const output = {
       updated_at: resource.updated_at,
       dependencies: {
         database: {
           max_connections: resource.dependencies.database.max_connections,
-          opened_connections:
-            resource.dependencies.database.opened_connections,
+          opened_connections: resource.dependencies.database.opened_connections,
         },
       },
     };
