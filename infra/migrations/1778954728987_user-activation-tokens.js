@@ -1,16 +1,15 @@
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-  pgm.createTable("sessions", {
+  pgm.createTable("user_activation_tokens", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
-    token: {
-      type: "varchar(96)",
-      notNull: true,
-      unique: true,
+    used_at: {
+      type: "timestamptz",
+      notNull: false,
     },
     user_id: {
       type: "uuid",
@@ -22,8 +21,8 @@ exports.up = (pgm) => {
     },
     created_at: {
       type: "timestamptz",
-      notNull: true,
       default: pgm.func("timezone('UTC', now())"),
+      notNull: true,
     },
     updated_at: {
       type: "timestamptz",
