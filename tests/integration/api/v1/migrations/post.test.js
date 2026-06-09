@@ -52,7 +52,7 @@ describe("POST /api/v1/migrations", () => {
     test("With `create:migration`", async () => {
       const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       await orchestrator.addFeaturesToUser(activatedUser, ["create:migration"]);
 
