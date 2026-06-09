@@ -89,6 +89,7 @@ describe("DELETE /api/v1/sessions", () => {
         user_id: sessionObject.user_id,
         created_at: sessionObject.created_at.toISOString(),
         updated_at: responseBody.updated_at,
+        expires_at: responseBody.expires_at,
       });
 
       expect(uuidVersion(responseBody.id)).toBe(4);
@@ -107,6 +108,7 @@ describe("DELETE /api/v1/sessions", () => {
         maxAge: -1,
         path: "/",
         httpOnly: true,
+        sameSite: "Lax",
       });
 
       // Double check assertions
