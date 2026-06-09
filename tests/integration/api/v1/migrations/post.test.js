@@ -9,7 +9,7 @@ beforeAll(async () => {
 
 describe("POST /api/v1/migrations", () => {
   describe("Anonymous user", () => {
-    test("Anonymous user", async () => {
+    test("Running pending migrations", async () => {
       const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         method: "POST",
       });
@@ -29,23 +29,21 @@ describe("POST /api/v1/migrations", () => {
   });
 
   describe("Default user", () => {
-    describe("Retrieving pending migrations", () => {
-      test("Anonymous user", async () => {
-        const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
-          method: "POST",
-        });
+    test("Running pending migrations", async () => {
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
+        method: "POST",
+      });
 
-        expect(response.status).toBe(403);
+      expect(response.status).toBe(403);
 
-        const responseBody = await response.json();
+      const responseBody = await response.json();
 
-        expect(responseBody).toEqual({
-          name: "ForbiddenError",
-          message: "Você não tem permissão para executar esta ação.",
-          action:
-            'Verifique se o seu usuário possui a feature "create:migration".',
-          status_code: 403,
-        });
+      expect(responseBody).toEqual({
+        name: "ForbiddenError",
+        message: "Você não tem permissão para executar esta ação.",
+        action:
+          'Verifique se o seu usuário possui a feature "create:migration".',
+        status_code: 403,
       });
     });
   });
