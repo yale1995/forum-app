@@ -1,3 +1,4 @@
+import webserver from "infra/webserver";
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -16,7 +17,7 @@ describe("GET /api/v1/users/[username]", () => {
       });
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/ExactCaseUser",
+        `${webserver.origin}/api/v1/users/ExactCaseUser`,
       );
 
       expect(response.status).toBe(200);
@@ -40,7 +41,7 @@ describe("GET /api/v1/users/[username]", () => {
       });
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/mismatchcaseuser",
+        `${webserver.origin}/api/v1/users/mismatchcaseuser`,
       );
 
       expect(response.status).toBe(200);
@@ -58,7 +59,7 @@ describe("GET /api/v1/users/[username]", () => {
 
     test("With nonexistent user", async () => {
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/nonexistentuser",
+        `${webserver.origin}/api/v1/users/nonexistentuser`,
       );
 
       expect(response.status).toBe(404);

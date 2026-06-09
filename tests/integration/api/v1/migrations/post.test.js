@@ -1,3 +1,4 @@
+import webserver from "infra/webserver";
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -9,7 +10,7 @@ beforeAll(async () => {
 describe("POST /api/v1/migrations", () => {
   describe("Anonymous user", () => {
     test("Anonymous user", async () => {
-      const response = await fetch("http://localhost:3000/api/v1/migrations", {
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         method: "POST",
       });
 
@@ -30,12 +31,9 @@ describe("POST /api/v1/migrations", () => {
   describe("Default user", () => {
     describe("Retrieving pending migrations", () => {
       test("Anonymous user", async () => {
-        const response = await fetch(
-          "http://localhost:3000/api/v1/migrations",
-          {
-            method: "POST",
-          },
-        );
+        const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
+          method: "POST",
+        });
 
         expect(response.status).toBe(403);
 
@@ -60,7 +58,7 @@ describe("POST /api/v1/migrations", () => {
 
       await orchestrator.addFeaturesToUser(activatedUser, ["create:migration"]);
 
-      const response = await fetch("http://localhost:3000/api/v1/migrations", {
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         method: "POST",
         headers: {
           Cookie: `session_id=${sessionObject.token}`,
