@@ -1,4 +1,4 @@
-import webserber from "infra/webserver";
+import webserver from "infra/webserver";
 import user from "models/user";
 import orchestrator from "tests/orchestrator";
 
@@ -15,20 +15,17 @@ describe("Use case: Registration flow (all successful)", () => {
   let createSessionResponseBody;
 
   test("Create user account", async () => {
-    const createUserResponse = await fetch(
-      "http://localhost:3000/api/v1/users",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: "new-user@gmail.com",
-          username: "new-user",
-          password: "new-user-password",
-        }),
+    const createUserResponse = await fetch(`${webserver.origin}/api/v1/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        email: "new-user@gmail.com",
+        username: "new-user",
+        password: "new-user-password",
+      }),
+    });
 
     expect(createUserResponse.status).toBe(201);
 
@@ -49,7 +46,7 @@ describe("Use case: Registration flow (all successful)", () => {
     activationTokenId = orchestrator.extractUUID(lastEmail.text);
 
     expect(lastEmail.text).toContain(
-      `${webserber.origin}/cadastro/ativar/${activationTokenId}`,
+      `${webserver.origin}/cadastro/ativar/${activationTokenId}`,
     );
 
     expect(lastEmail.sender).toBe("<contato@forum-app.com>");
@@ -60,7 +57,7 @@ describe("Use case: Registration flow (all successful)", () => {
 
   test("Activate account", async () => {
     const activationResponse = await fetch(
-      `http://localhost:3000/api/v1/activations/${activationTokenId}`,
+      `${webserver.origin}/api/v1/activations/${activationTokenId}`,
       {
         method: "PATCH",
       },
@@ -82,7 +79,7 @@ describe("Use case: Registration flow (all successful)", () => {
 
   test("Login", async () => {
     const createSessionResponse = await fetch(
-      "http://localhost:3000/api/v1/sessions",
+      `${webserver.origin}/api/v1/sessions`,
       {
         method: "POST",
         headers: {
@@ -103,7 +100,7 @@ describe("Use case: Registration flow (all successful)", () => {
   });
 
   test("Get user information", async () => {
-    const userResponse = await fetch("http://localhost:3000/api/v1/user", {
+    const userResponse = await fetch(`${webserver.origin}/api/v1/user`, {
       headers: {
         Cookie: `session_id=${createSessionResponseBody.token}`,
       },
